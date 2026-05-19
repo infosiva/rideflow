@@ -1,6 +1,114 @@
 "use client";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Car, Shield, Star, ChevronRight, Zap, Users, Phone } from "lucide-react";
+
+// ── Animated blob bg ──────────────────────────────────────────────────────────
+function AnimatedBg() {
+  return (
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }} aria-hidden>
+      <motion.div
+        style={{ position: "absolute", top: "-18%", left: "-5%", width: 600, height: 600, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(37,99,235,0.2) 0%, rgba(37,99,235,0.05) 50%, transparent 70%)",
+          filter: "blur(80px)" }}
+        animate={{ x: [0, 35, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
+        transition={{ duration: 11, ease: "easeInOut", repeat: Infinity }}
+      />
+      <motion.div
+        style={{ position: "absolute", bottom: "-12%", right: "-8%", width: 500, height: 500, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(96,165,250,0.15) 0%, rgba(37,99,235,0.04) 50%, transparent 70%)",
+          filter: "blur(90px)" }}
+        animate={{ x: [0, -25, 0], y: [0, 20, 0], scale: [1, 1.06, 1] }}
+        transition={{ duration: 14, ease: "easeInOut", repeat: Infinity, delay: 2 }}
+      />
+      <motion.div
+        style={{ position: "absolute", top: "38%", left: "48%", width: 350, height: 350, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 65%)",
+          filter: "blur(70px)" }}
+        animate={{ x: [0, 18, 0], y: [0, -15, 0] }}
+        transition={{ duration: 9, ease: "easeInOut", repeat: Infinity, delay: 1 }}
+      />
+    </div>
+  );
+}
+
+// ── Floating chatbot ──────────────────────────────────────────────────────────
+function FloatingChat() {
+  const [open, setOpen] = useState(false);
+  const [msgs, setMsgs] = useState<{ role: "user" | "bot"; text: string }[]>([
+    { role: "bot", text: "Hi! Need help booking a ride or have a question? 🚖" },
+  ]);
+  const [input, setInput] = useState("");
+
+  async function send() {
+    if (!input.trim()) return;
+    const userMsg = input;
+    setMsgs(m => [...m, { role: "user", text: userMsg }]);
+    setInput("");
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: userMsg }] }),
+      });
+      const data = await res.json();
+      setMsgs(m => [...m, { role: "bot", text: data.text || data.content || "Let me help you with your ride!" }]);
+    } catch {
+      setMsgs(m => [...m, { role: "bot", text: "Use the booking form above to get started!" }]);
+    }
+  }
+
+  return (
+    <>
+      <motion.button
+        onClick={() => setOpen(o => !o)}
+        whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
+        style={{ position: "fixed", bottom: 24, right: 24, width: 52, height: 52, borderRadius: "50%",
+          background: "linear-gradient(135deg,#2563eb,#1d4ed8)", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 20px rgba(37,99,235,0.5)", zIndex: 1000, fontSize: 20 }}
+      >
+        {open ? "✕" : "💬"}
+      </motion.button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            style={{ position: "fixed", bottom: 88, right: 24, width: 320, height: 420,
+              background: "rgba(8,15,26,0.97)", border: "1px solid rgba(37,99,235,0.3)",
+              borderRadius: 16, display: "flex", flexDirection: "column", zIndex: 1000,
+              overflow: "hidden", backdropFilter: "blur(20px)" }}
+          >
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(37,99,235,0.2)", fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>
+              RideFlow Assistant
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {msgs.map((m, i) => (
+                <div key={i} style={{
+                  alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                  background: m.role === "user" ? "rgba(37,99,235,0.25)" : "rgba(255,255,255,0.06)",
+                  padding: "8px 12px", borderRadius: 10, fontSize: 12, color: "rgba(241,245,249,0.9)", maxWidth: "85%",
+                }}>{m.text}</div>
+              ))}
+            </div>
+            <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(37,99,235,0.15)", display: "flex", gap: 8 }}>
+              <input value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && send()}
+                placeholder="Ask about rides or booking…"
+                style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(37,99,235,0.25)",
+                  borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "#f1f5f9", outline: "none" }} />
+              <button onClick={send}
+                style={{ background: "#2563eb", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 12, color: "#fff", cursor: "pointer" }}>→</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 // ── Currency / region detection ───────────────────────────────────────────────
 const REGION_CONFIG: Record<string, { currency: string; symbol: string; baseRate: number; unit: string; flag: string }> = {
@@ -180,7 +288,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#080f1a" }}>
+    <div style={{ minHeight: "100vh", background: "#080f1a", position: "relative" }}>
+      <AnimatedBg />
 
       {/* Nav */}
       <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(8,15,26,0.95)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(37,99,235,0.1)", padding: "0 20px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -356,6 +465,7 @@ export default function Home() {
 
       {/* How it works - float CTA on mobile */}
       <div style={{ display: "none" }} id="booking" />
+      <FloatingChat />
     </div>
   );
 }
