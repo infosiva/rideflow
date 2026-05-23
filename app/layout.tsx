@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import BackToTop from '@/components/BackToTop'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700"] });
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ background: "#080f1a", color: "#f1f5f9", fontFamily: "var(--font-body, system-ui)", margin: 0, minHeight: "100vh", overflowX: "hidden" }}>
         {children}
+        <BackToTop accentColor="#0ea5e9" />
       </body>
     </html>
   );
