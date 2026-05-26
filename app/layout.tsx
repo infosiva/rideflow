@@ -48,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="grain" aria-hidden />
         {children}
         <BackToTop accentColor="#0ea5e9" />
+        <Script defer data-site="rideflow.vercel.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
   );
