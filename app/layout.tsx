@@ -42,6 +42,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body style={{ background: "#080f1a", color: "#f1f5f9", fontFamily: "var(--font-body, system-ui)", margin: 0, minHeight: "100vh", overflowX: "hidden" }}>
+        <div className="aurora aurora-primary" aria-hidden />
+        <div className="aurora aurora-secondary" aria-hidden />
+        <div className="aurora aurora-third" aria-hidden />
+        <div className="grain" aria-hidden />
         {children}
         <BackToTop accentColor="#0ea5e9" />
       </body>
