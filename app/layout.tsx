@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import BackToTop from '@/components/BackToTop'
+import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700"] });
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="grain" aria-hidden />
         {children}
         <BackToTop accentColor="#0ea5e9" />
+        <FloatingChatWrapper />
         <Script defer data-site="rideflow.vercel.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
