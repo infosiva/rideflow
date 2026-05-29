@@ -10,16 +10,16 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-displ
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rideflow.vercel.app"),
-  title: "RideFlow — Book a Ride Instantly",
-  description: "Fast, affordable taxi and ride booking. Location-aware pricing. No app needed — book online in seconds.",
+  title: "RideFlow — AI Route Optimizer for Drivers & Couriers",
+  description: "AI route optimization built for independent drivers and couriers — plan 10-30 stops in seconds, cut drive time, save fuel. No fleet required.",
   keywords: ["taxi booking", "ride booking", "cab booking", "book a taxi", "local taxi", "airport transfer", "outstation cab"],
   openGraph: {
-    title: "RideFlow — Book a Ride Instantly",
-    description: "Fast, affordable ride booking. No app needed.",
+    title: "RideFlow — AI Route Optimizer for Drivers & Couriers",
+    description: "AI route optimization for independent drivers — plan 10-30 stops in seconds.",
     type: "website",
     siteName: "RideFlow",
   },
-  twitter: { card: "summary_large_image", title: "RideFlow", description: "Book a ride instantly. No app needed." },
+  twitter: { card: "summary_large_image", title: "RideFlow — AI Route Optimizer", description: "Plan 10-30 stops in seconds. Built for independent drivers." },
   robots: { index: true, follow: true },
 };
 

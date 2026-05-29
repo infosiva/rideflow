@@ -36,7 +36,7 @@ function AnimatedBg() {
 function FloatingChat() {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<{ role: "user" | "bot"; text: string }[]>([
-    { role: "bot", text: "Hi! Need help booking a ride or have a question? 🚖" },
+    { role: "bot", text: "Hi! RideFlow optimizes multi-stop routes for independent drivers and couriers — cut drive time, save fuel. What route are you planning?" },
   ]);
   const [input, setInput] = useState("");
 
