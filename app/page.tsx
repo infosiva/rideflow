@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Car, Shield, Star, ChevronRight, Zap, Users, Phone } from "lucide-react";
+import RideDashboard from "@/components/RideDashboard";
 
 // ── Animated blob bg ──────────────────────────────────────────────────────────
 function AnimatedBg() {
@@ -144,6 +145,28 @@ const TESTIMONIALS = [
   { name: "Raj K.", city: "Delhi", text: "Corporate account set up in 10 mins. GST invoices, monthly billing — exactly what we needed.", stars: 5, avatar: "RK" },
 ];
 
+type RideStatus = "completed" | "pending" | "cancelled";
+
+const RECENT_ACTIVITY: {
+  time: string;
+  destination: string;
+  detail: string;
+  amount: string;
+  status: RideStatus;
+}[] = [
+  { time: "2h ago",   destination: "Indira Gandhi Airport T3", detail: "Economy · 28 km",  amount: "₹386", status: "completed" },
+  { time: "Yesterday", destination: "Connaught Place",         detail: "Comfort · 9 km",   amount: "₹196", status: "completed" },
+  { time: "2 days",   destination: "Gurgaon Cyber Hub",        detail: "Economy · 18 km",  amount: "₹266", status: "cancelled" },
+  { time: "3 days",   destination: "Noida Sector 62",          detail: "XL · 22 km",       amount: "₹452", status: "completed" },
+  { time: "4 days",   destination: "New Delhi Railway Station", detail: "Bike · 6 km",     amount: "₹92",  status: "pending"   },
+];
+
+const STATUS_DOT: Record<RideStatus, string> = {
+  completed: "#22c55e",
+  pending:   "#f59e0b",
+  cancelled: "#ef4444",
+};
+
 function estimatePrice(distance: number, rideType: typeof RIDE_TYPES[0], region: typeof DEFAULT_REGION): string {
   const base = 50 * (region.symbol === "₹" ? 1 : 0.08);
   const per = region.baseRate;
@@ -216,9 +239,11 @@ function BookingForm({ region }: { region: typeof DEFAULT_REGION }) {
           <button onClick={() => setStep("form")} style={{ flex: 1, background: "transparent", border: "1px solid rgba(100,116,139,0.3)", color: "rgba(148,163,184,0.8)", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
             Edit
           </button>
-          <button onClick={handleConfirm} disabled={loading} style={{ flex: 2, background: "#2563eb", color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
+          <motion.button onClick={handleConfirm} disabled={loading}
+            whileTap={!loading ? { scale: 0.97 } : {}}
+            style={{ flex: 2, background: "#2563eb", color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
             {loading ? "Confirming…" : "Confirm & Book →"}
-          </button>
+          </motion.button>
         </div>
       </div>
     );
@@ -263,10 +288,11 @@ function BookingForm({ region }: { region: typeof DEFAULT_REGION }) {
           <span style={{ color: "#3b82f6", fontWeight: 800, fontSize: 16 }}>{price}</span>
         </div>
       )}
-      <button onClick={handleBook} disabled={!pickup || !drop || loading}
-        style={{ background: !pickup || !drop ? "rgba(37,99,235,0.3)" : "#2563eb", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 15, fontWeight: 700, cursor: !pickup || !drop ? "not-allowed" : "pointer", transition: "all 150ms", boxShadow: pickup && drop ? "0 4px 24px rgba(37,99,235,0.4)" : "none" }}>
+      <motion.button onClick={handleBook} disabled={!pickup || !drop || loading}
+        whileTap={pickup && drop ? { scale: 0.97 } : {}}
+        style={{ background: !pickup || !drop ? "rgba(37,99,235,0.3)" : "#2563eb", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 15, fontWeight: 700, cursor: !pickup || !drop ? "not-allowed" : "pointer", transition: "background 150ms, box-shadow 150ms", boxShadow: pickup && drop ? "0 4px 24px rgba(37,99,235,0.4)" : "none" }}>
         {loading ? "Finding rides…" : "Find a Ride →"}
-      </button>
+      </motion.button>
     </div>
   );
 }
@@ -306,8 +332,11 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* Dashboard stats strip */}
+      <RideDashboard />
+
       {/* Hero */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 20px 40px", display: "grid", gridTemplateColumns: "1fr 420px", gap: 48, alignItems: "center" }}
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 20px 40px", display: "grid", gridTemplateColumns: "1fr 420px", gap: 48, alignItems: "center" }}
         className="fade-up">
         {/* Left */}
         <div>
@@ -423,6 +452,50 @@ export default function Home() {
                 <div>
                   <div style={{ color: "#f1f5f9", fontWeight: 600, fontSize: 13 }}>{t.name}</div>
                   <div style={{ color: "rgba(148,163,184,0.55)", fontSize: 11 }}>{t.city}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Recent Activity */}
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px 60px" }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 6, fontFamily: "var(--font-display)" }}>Recent Activity</h2>
+        <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 13, marginBottom: 20 }}>Your last 5 rides at a glance</p>
+        <div style={{ background: "rgba(15,27,45,0.75)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 16, overflow: "hidden" }}>
+          {RECENT_ACTIVITY.map((ride, idx) => (
+            <div
+              key={idx}
+              className="activity-row"
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 14,
+                padding: "14px 18px",
+                borderBottom: idx < RECENT_ACTIVITY.length - 1 ? "1px solid rgba(37,99,235,0.08)" : "none",
+                position: "relative",
+              }}
+            >
+              {/* Timeline dot + line */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: STATUS_DOT[ride.status], boxShadow: `0 0 6px ${STATUS_DOT[ride.status]}66`, flexShrink: 0 }} />
+                {idx < RECENT_ACTIVITY.length - 1 && (
+                  <div style={{ width: 1, height: 28, background: "rgba(37,99,235,0.12)", marginTop: 4 }} />
+                )}
+              </div>
+              {/* Content */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: "#f1f5f9", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "60%" }}>
+                    {ride.destination}
+                  </div>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: "#3b82f6", flexShrink: 0 }}>{ride.amount}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 3 }}>
+                  <span style={{ fontSize: 11, color: "rgba(148,163,184,0.55)" }}>{ride.detail}</span>
+                  <span className={`pill-${ride.status}`} style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 99 }}>{ride.status}</span>
+                  <span style={{ fontSize: 11, color: "rgba(148,163,184,0.4)", marginLeft: "auto" }}>{ride.time}</span>
                 </div>
               </div>
             </div>

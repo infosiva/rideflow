@@ -125,3 +125,44 @@ input:focus { border-color: rgba(37,99,235,0.5) !important; box-shadow: 0 0 0 3p
 @media (prefers-reduced-motion: reduce) {
   .aurora-primary, .aurora-secondary, .aurora-third { animation: none; }
 }
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.08) 40%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: rgba(255,255,255,0.05); }
+}
+
+/* ── Activity timeline row hover ── */
+.activity-row {
+  transition: background 160ms ease;
+}
+.activity-row:hover {
+  background: rgba(37,99,235,0.06);
+}
+
+/* ── Ride table row hover ── */
+.ride-row {
+  transition: background 140ms ease;
+}
+.ride-row:hover {
+  background: rgba(37,99,235,0.06);
+}
+
+/* ── Status pill ── */
+.pill-completed { background: rgba(34,197,94,0.12);  color: #22c55e;  border: 1px solid rgba(34,197,94,0.25); }
+.pill-pending   { background: rgba(245,158,11,0.12); color: #f59e0b;  border: 1px solid rgba(245,158,11,0.25); }
+.pill-cancelled { background: rgba(239,68,68,0.12);  color: #ef4444;  border: 1px solid rgba(239,68,68,0.25); }
