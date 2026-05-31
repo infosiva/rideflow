@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swa
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rideflow.vercel.app"),
+  metadataBase: new URL("https://rideflow.app"),
   title: "RideFlow — AI Route Optimizer for Drivers & Couriers",
   description: "AI route optimization built for independent drivers and couriers — plan 10-30 stops in seconds, cut drive time, save fuel. No fleet required.",
   keywords: ["taxi booking", "ride booking", "cab booking", "book a taxi", "local taxi", "airport transfer", "outstation cab"],
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@type": "LocalBusiness",
               "name": "RideFlow",
               "description": "Fast, affordable taxi and ride booking service",
-              "url": "https://rideflow.vercel.app",
+              "url": "https://rideflow.app",
               "serviceType": "Taxi Service"
             })
           }}
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <BackToTop accentColor="#0ea5e9" />
         <FloatingChatWrapper />
-        <Script defer data-site="rideflow.vercel.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
+        <Script defer data-site="rideflow.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
   );
