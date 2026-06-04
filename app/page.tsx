@@ -139,33 +139,7 @@ const SERVICES = [
   { icon: "👰", label: "Special Events",    desc: "Weddings, parties, nights out" },
 ];
 
-const TESTIMONIALS = [
-  { name: "Arjun M.", city: "Bangalore", text: "Booked airport pickup at midnight. Driver arrived early, car was clean. Best taxi experience I've had.", stars: 5, avatar: "AM" },
-  { name: "Priya S.", city: "Mumbai", text: "Outstation trip to Pune — upfront price, no surge. Will never use another app again.", stars: 5, avatar: "PS" },
-  { name: "Raj K.", city: "Delhi", text: "Corporate account set up in 10 mins. GST invoices, monthly billing — exactly what we needed.", stars: 5, avatar: "RK" },
-];
 
-type RideStatus = "completed" | "pending" | "cancelled";
-
-const RECENT_ACTIVITY: {
-  time: string;
-  destination: string;
-  detail: string;
-  amount: string;
-  status: RideStatus;
-}[] = [
-  { time: "2h ago",   destination: "Indira Gandhi Airport T3", detail: "Economy · 28 km",  amount: "₹386", status: "completed" },
-  { time: "Yesterday", destination: "Connaught Place",         detail: "Comfort · 9 km",   amount: "₹196", status: "completed" },
-  { time: "2 days",   destination: "Gurgaon Cyber Hub",        detail: "Economy · 18 km",  amount: "₹266", status: "cancelled" },
-  { time: "3 days",   destination: "Noida Sector 62",          detail: "XL · 22 km",       amount: "₹452", status: "completed" },
-  { time: "4 days",   destination: "New Delhi Railway Station", detail: "Bike · 6 km",     amount: "₹92",  status: "pending"   },
-];
-
-const STATUS_DOT: Record<RideStatus, string> = {
-  completed: "#22c55e",
-  pending:   "#f59e0b",
-  cancelled: "#ef4444",
-};
 
 function estimatePrice(distance: number, rideType: typeof RIDE_TYPES[0], region: typeof DEFAULT_REGION): string {
   const base = 50 * (region.symbol === "₹" ? 1 : 0.08);
@@ -418,88 +392,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats bar */}
-      <section style={{ background: "rgba(37,99,235,0.06)", borderTop: "1px solid rgba(37,99,235,0.12)", borderBottom: "1px solid rgba(37,99,235,0.12)", padding: "32px 20px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 24, textAlign: "center" }}>
-          {[
-            { value: "2M+", label: "Rides completed" },
-            { value: "50K+", label: "Verified drivers" },
-            { value: "4.9★", label: "Average rating" },
-            { value: "120+", label: "Cities covered" },
-          ].map(({ value, label }) => (
-            <div key={label}>
-              <div style={{ fontSize: 30, fontWeight: 900, color: "#2563eb", letterSpacing: "-0.04em", fontFamily: "var(--font-display)" }}>{value}</div>
-              <div style={{ color: "rgba(148,163,184,0.65)", fontSize: 13, marginTop: 4 }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 20px" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 28, fontFamily: "var(--font-display)" }}>Loved by riders</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 16 }}>
-          {TESTIMONIALS.map(t => (
-            <div key={t.name} style={{ background: "rgba(15,27,45,0.7)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 16, padding: "22px" }}>
-              <div style={{ display: "flex", gap: 2, marginBottom: 12 }}>
-                {Array.from({ length: t.stars }).map((_, i) => (
-                  <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
-                ))}
+      {/* Why RideFlow */}
+      <section style={{ background: "rgba(37,99,235,0.04)", borderTop: "1px solid rgba(37,99,235,0.1)", borderBottom: "1px solid rgba(37,99,235,0.1)", padding: "40px 20px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "rgba(148,163,184,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center", marginBottom: 24, fontFamily: "var(--font-display)" }}>Why RideFlow</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16, textAlign: "center" }}>
+            {[
+              { icon: "💰", label: "Upfront pricing", desc: "Know the fare before you book. No surge surprises." },
+              { icon: "🛡️", label: "Verified drivers", desc: "Every driver is background-checked and rated." },
+              { icon: "🌍", label: "Multi-currency", desc: "Pay in your local currency, auto-detected." },
+              { icon: "📅", label: "Schedule ahead", desc: "Book up to 7 days in advance. Never miss a ride." },
+            ].map(({ icon, label, desc }) => (
+              <div key={label} style={{ background: "rgba(15,27,45,0.6)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 14, padding: "20px 18px" }}>
+                <div style={{ fontSize: 28, marginBottom: 10 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#f1f5f9", marginBottom: 6 }}>{label}</div>
+                <div style={{ color: "rgba(148,163,184,0.6)", fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
               </div>
-              <p style={{ color: "rgba(241,245,249,0.85)", fontSize: 14, lineHeight: 1.6, margin: "0 0 16px" }}>&ldquo;{t.text}&rdquo;</p>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#2563eb,#1d4ed8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{t.avatar}</div>
-                <div>
-                  <div style={{ color: "#f1f5f9", fontWeight: 600, fontSize: 13 }}>{t.name}</div>
-                  <div style={{ color: "rgba(148,163,184,0.55)", fontSize: 11 }}>{t.city}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Recent Activity */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px 60px" }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 6, fontFamily: "var(--font-display)" }}>Recent Activity</h2>
-        <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 13, marginBottom: 20 }}>Your last 5 rides at a glance</p>
-        <div style={{ background: "rgba(15,27,45,0.75)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 16, overflow: "hidden" }}>
-          {RECENT_ACTIVITY.map((ride, idx) => (
-            <div
-              key={idx}
-              className="activity-row"
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 14,
-                padding: "14px 18px",
-                borderBottom: idx < RECENT_ACTIVITY.length - 1 ? "1px solid rgba(37,99,235,0.08)" : "none",
-                position: "relative",
-              }}
-            >
-              {/* Timeline dot + line */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
-                <div style={{ width: 10, height: 10, borderRadius: "50%", background: STATUS_DOT[ride.status], boxShadow: `0 0 6px ${STATUS_DOT[ride.status]}66`, flexShrink: 0 }} />
-                {idx < RECENT_ACTIVITY.length - 1 && (
-                  <div style={{ width: 1, height: 28, background: "rgba(37,99,235,0.12)", marginTop: 4 }} />
-                )}
-              </div>
-              {/* Content */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: "#f1f5f9", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "60%" }}>
-                    {ride.destination}
-                  </div>
-                  <span style={{ fontWeight: 700, fontSize: 13, color: "#3b82f6", flexShrink: 0 }}>{ride.amount}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 3 }}>
-                  <span style={{ fontSize: 11, color: "rgba(148,163,184,0.55)" }}>{ride.detail}</span>
-                  <span className={`pill-${ride.status}`} style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 99 }}>{ride.status}</span>
-                  <span style={{ fontSize: 11, color: "rgba(148,163,184,0.4)", marginLeft: "auto" }}>{ride.time}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
