@@ -27,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <head>
+        <meta name="google-adsense-account" content="ca-pub-4237294630161176" />
         <Script
           id="structured-data"
           type="application/ld+json"
