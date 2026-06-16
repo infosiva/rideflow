@@ -4,6 +4,7 @@ import "./globals.css";
 import Script from "next/script";
 import BackToTop from '@/components/BackToTop'
 import FloatingChatWrapper from '@/components/FloatingChatWrapper'
+import FeedbackWidget from '@/components/FeedbackWidget'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700"] });
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <BackToTop accentColor="#0ea5e9" />
         <FloatingChatWrapper />
+        <FeedbackWidget siteName="RideFlow" accentColor="#0ea5e9" accentColor2="#0284c7" position="left" />
         <Script defer data-site="rideflow.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
