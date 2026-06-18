@@ -427,6 +427,7 @@ export default function Home() {
               <Phone size={15} /> Call to Book
             </a>
           </div>
+          <p className="text-xs opacity-60 mt-2">Have a promo code? <a href="#promo" className="underline">Apply here</a></p>
         </div>
       </section>
 
