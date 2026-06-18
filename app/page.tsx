@@ -294,7 +294,13 @@ export default function Home() {
       {/* Nav */}
       <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(8,15,26,0.95)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(37,99,235,0.1)", padding: "0 20px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 20 }}>🚖</span>
+          <div style={{ width: 22, height: 22, borderRadius: 6, background: "linear-gradient(135deg, #1e3a5f, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="5" cy="19" r="2" fill="white" opacity="0.85"/>
+              <path d="M5 19c0-5 3-7 7-7s7-2 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M15.5 2.5l4 2.5-4 2.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            </svg>
+          </div>
           <span style={{ fontWeight: 800, fontSize: 17, color: "#f1f5f9", letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>Ride<span style={{ color: "#2563eb" }}>Flow</span></span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
