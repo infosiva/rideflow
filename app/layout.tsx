@@ -4,6 +4,7 @@ import "./globals.css";
 import Script from "next/script";
 import BackToTop from '@/components/BackToTop'
 import FloatingChatWrapper from '@/components/FloatingChatWrapper'
+import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
@@ -24,7 +25,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const flags = await getSiteFlags('rideflow')
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <head>
@@ -57,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="grain" aria-hidden />
         {children}
         <BackToTop accentColor="#0ea5e9" />
-        <FloatingChatWrapper />
+        {flags.chatbot && <FloatingChatWrapper />}
         <FeedbackWidget siteName="RideFlow" accentColor="#0ea5e9" accentColor2="#0284c7" position="left" />
         <Script defer data-site="rideflow.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
