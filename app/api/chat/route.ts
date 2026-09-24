@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     const { messages, system } = await req.json()
     const res = await g().chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'qwen/qwen3.8-27b',
       messages: [{ role: 'system', content: system ?? 'You are RideFlow AI — a ride booking assistant. Help users book rides, estimate fares, understand ride types, and answer questions about the service. Be concise and helpful.' }, ...messages],
       max_tokens: 400,
     })
