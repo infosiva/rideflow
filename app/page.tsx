@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { MagneticButton } from "@infosiva/shared-ui/modern";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Car, Shield, Star, ChevronRight, Zap, Users, Phone } from "lucide-react";
 import RideDashboard from "@/components/RideDashboard";
@@ -426,8 +427,10 @@ export default function Home() {
           <h2 style={{ fontSize: 28, fontWeight: 900, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 10, fontFamily: "var(--font-display)" }}>Ready to ride?</h2>
           <p style={{ color: "rgba(148,163,184,0.75)", fontSize: 15, marginBottom: 28 }}>Book your first ride in under 60 seconds. No app, no signup required.</p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="#booking" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#2563eb", color: "#fff", padding: "13px 28px", borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 24px rgba(37,99,235,0.4)" }}>
-              Book a Ride <ChevronRight size={16} />
+            <a href="#booking" style={{ textDecoration: "none" }}>
+              <MagneticButton style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#2563eb", color: "#fff", padding: "13px 28px", borderRadius: 12, fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 24px rgba(37,99,235,0.4)" }}>
+                Book a Ride <ChevronRight size={16} />
+              </MagneticButton>
             </a>
             <a href="tel:+1800000000" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "#f1f5f9", border: "1px solid rgba(37,99,235,0.35)", padding: "13px 28px", borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
               <Phone size={15} /> Call to Book

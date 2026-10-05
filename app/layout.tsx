@@ -7,6 +7,7 @@ import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
 
+import { MotionProvider } from "@infosiva/shared-ui/modern";
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700"] });
 
@@ -57,7 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="aurora aurora-secondary" aria-hidden />
         <div className="aurora aurora-third" aria-hidden />
         <div className="grain" aria-hidden />
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <BackToTop accentColor="#0ea5e9" />
         {flags.chatbot && <FloatingChatWrapper />}
         <FeedbackWidget siteName="RideFlow" accentColor="#0ea5e9" accentColor2="#0284c7" position="left" />
