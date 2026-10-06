@@ -6,6 +6,7 @@ import BackToTop from '@/components/BackToTop'
 import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
+import { loadSiteTheme, buildThemeStyleTag, buildGa4Snippet } from '@/lib/theme-loader'
 
 import { MotionProvider } from "@infosiva/shared-ui/modern";
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://rideflow.app"),
   title: "RideFlow — AI Route Optimizer for Drivers & Couriers",
   description: "AI route optimization built for independent drivers and couriers — plan 10-30 stops in seconds, cut drive time, save fuel. No fleet required.",
-  keywords: ["taxi booking", "ride booking", "cab booking", "book a taxi", "local taxi", "airport transfer", "outstation cab"],
+  keywords: ["route planner", "route optimizer", "multi-stop route", "delivery route planner", "courier route", "driver route planning"],
   openGraph: {
     title: "RideFlow — AI Route Optimizer for Drivers & Couriers",
     description: "AI route optimization for independent drivers — plan 10-30 stops in seconds.",
@@ -28,9 +29,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const flags = await getSiteFlags('rideflow')
+  const theme = await loadSiteTheme('rideflow')
+  const themeCss = buildThemeStyleTag(theme, { background: '#0b1207', primary: '#c6f432' })
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <head>
+        <style id="hub-theme" dangerouslySetInnerHTML={{ __html: themeCss }} />
         <meta name="google-adsense-account" content="ca-pub-4237294630161176" />
         <Script
                   async
@@ -44,24 +48,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "LocalBusiness",
+              "@type": "SoftwareApplication",
               "name": "RideFlow",
-              "description": "Fast, affordable taxi and ride booking service",
+              "description": "Free multi-stop route planner for independent drivers and couriers",
               "url": "https://rideflow.app",
-              "serviceType": "Taxi Service"
+              "applicationCategory": "TravelApplication",
+              "operatingSystem": "Web",
+              "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
             })
           }}
         />
+      {buildGa4Snippet(theme) && <script dangerouslySetInnerHTML={{ __html: buildGa4Snippet(theme) }} />}
       </head>
-      <body style={{ background: "#080f1a", color: "#f1f5f9", fontFamily: "var(--font-body, system-ui)", margin: 0, minHeight: "100vh", overflowX: "hidden" }}>
+      <body>
         <div className="aurora aurora-primary" aria-hidden />
         <div className="aurora aurora-secondary" aria-hidden />
         <div className="aurora aurora-third" aria-hidden />
         <div className="grain" aria-hidden />
         <MotionProvider>{children}</MotionProvider>
-        <BackToTop accentColor="#0ea5e9" />
+        <BackToTop accentColor="#c6f432" />
         {flags.chatbot && <FloatingChatWrapper />}
-        <FeedbackWidget siteName="RideFlow" accentColor="#0ea5e9" accentColor2="#0284c7" position="left" />
+        <FeedbackWidget siteName="RideFlow" accentColor="#c6f432" accentColor2="#a3cf1f" position="left" />
         <Script defer data-site="rideflow.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
       </body>
     </html>
