@@ -69,7 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <BackToTop accentColor="#c6f432" />
         {flags.chatbot && <FloatingChatWrapper />}
         <FeedbackWidget siteName="RideFlow" accentColor="#c6f432" accentColor2="#a3cf1f" position="left" />
-        <Script defer data-site="rideflow.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
+        <Script defer data-site="rideflow.app" src="/t.js" strategy="afterInteractive" />
       </body>
     </html>
   );
