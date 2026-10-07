@@ -137,3 +137,6 @@ h1, h2, h3, .display { font-family: var(--font-display, system-ui); }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .route-line { stroke-dashoffset: 0; }
 }
+
+/* AnimatedBg token (follows hub/theme background) */
+:root{--bg:var(--background,#0b1207)}
