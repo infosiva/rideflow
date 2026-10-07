@@ -1,3 +1,4 @@
+import { sanitizeUserInput } from '@/lib/guard'
 import { NextRequest, NextResponse } from 'next/server'
 
 // 60 req/hr/IP (in-memory, per instance)
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
   let msgs: Msg[] = []
   try {
     const b = await req.json()
-    msgs = (Array.isArray(b.messages) ? b.messages : []).slice(-8).map((m: Msg) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content ?? '').slice(0, 1000) }))
+    msgs = (Array.isArray(b.messages) ? b.messages : []).slice(-8).map((m: Msg) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: sanitizeUserInput(String(m.content ?? '')).text.slice(0, 1000) }))
   } catch {}
   if (!msgs.length) return NextResponse.json({ text: FALLBACK })
   const messages = [{ role: 'system', content: SYSTEM }, ...msgs]
