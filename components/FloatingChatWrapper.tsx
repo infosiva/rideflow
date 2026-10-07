@@ -2,17 +2,17 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const ACCENT = '#f59e0b'
-const ACCENT_RGB = '245,158,11'
-const ACCENT_DARK = '#d97706'
-const BG = 'rgba(6,6,16,0.97)'
+const ACCENT = '#c6f432'
+const ACCENT_RGB = '198,244,50'
+const ACCENT_DARK = '#a3cf1f'
+const BG = 'rgba(11,18,7,0.97)'
 const BOTTOM_OFFSET = 84
 
 export default function FloatingChatWrapper() {
   const [open, setOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [msgs, setMsgs] = useState<{ role: 'user' | 'bot'; text: string }[]>([
-    { role: 'bot', text: 'Hi! Ask me about route optimization, delivery planning, or driver scheduling 🚗' },
+    { role: 'bot', text: 'Hi! Ask me about planning multi-stop routes, delivery order, or saving drive time.' },
   ])
   const [input, setInput] = useState('')
 
@@ -224,7 +224,7 @@ export default function FloatingChatWrapper() {
                   borderRadius: 10,
                   padding: '8px 14px',
                   fontSize: 14,
-                  color: '#fff',
+                  color: '#0b1207',
                   cursor: 'pointer',
                   fontWeight: 600,
                 }}

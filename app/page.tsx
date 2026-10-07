@@ -1,464 +1,62 @@
-"use client";
-import { useState, useEffect } from "react";
-import { MagneticButton } from "@infosiva/shared-ui/modern";
-import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Car, Shield, Star, ChevronRight, Zap, Users, Phone } from "lucide-react";
-import RideDashboard from "@/components/RideDashboard";
+import Link from 'next/link'
+import Planner from '@/components/Planner'
+import PromoBox from '@/components/PromoBox'
+import { Logo } from '@/components/Logo'
 
-// ── Animated blob bg ──────────────────────────────────────────────────────────
-function AnimatedBg() {
-  return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }} aria-hidden>
-      <motion.div
-        style={{ position: "absolute", top: "-18%", left: "-5%", width: 600, height: 600, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(37,99,235,0.2) 0%, rgba(37,99,235,0.05) 50%, transparent 70%)",
-          filter: "blur(80px)" }}
-        animate={{ x: [0, 35, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 11, ease: "easeInOut", repeat: Infinity }}
-      />
-      <motion.div
-        style={{ position: "absolute", bottom: "-12%", right: "-8%", width: 500, height: 500, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(96,165,250,0.15) 0%, rgba(37,99,235,0.04) 50%, transparent 70%)",
-          filter: "blur(90px)" }}
-        animate={{ x: [0, -25, 0], y: [0, 20, 0], scale: [1, 1.06, 1] }}
-        transition={{ duration: 14, ease: "easeInOut", repeat: Infinity, delay: 2 }}
-      />
-      <motion.div
-        style={{ position: "absolute", top: "38%", left: "48%", width: 350, height: 350, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 65%)",
-          filter: "blur(70px)" }}
-        animate={{ x: [0, 18, 0], y: [0, -15, 0] }}
-        transition={{ duration: 9, ease: "easeInOut", repeat: Infinity, delay: 1 }}
-      />
-    </div>
-  );
-}
+const STEPS = [
+  ['Paste', 'Drop in 3 to 12 addresses, first line is where you start.'],
+  ['Optimize', 'Stops are reordered nearest-first so you stop backtracking.'],
+  ['Drive', 'Follow the numbered order and see how many km you saved.'],
+]
 
-// ── Floating chatbot ──────────────────────────────────────────────────────────
-function FloatingChat() {
-  const [open, setOpen] = useState(false);
-  const [msgs, setMsgs] = useState<{ role: "user" | "bot"; text: string }[]>([
-    { role: "bot", text: "Hi! RideFlow optimizes multi-stop routes for independent drivers and couriers — cut drive time, save fuel. What route are you planning?" },
-  ]);
-  const [input, setInput] = useState("");
-
-  async function send() {
-    if (!input.trim()) return;
-    const userMsg = input;
-    setMsgs(m => [...m, { role: "user", text: userMsg }]);
-    setInput("");
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: userMsg }] }),
-      });
-      const data = await res.json();
-      setMsgs(m => [...m, { role: "bot", text: data.text || data.content || "Let me help you with your ride!" }]);
-    } catch {
-      setMsgs(m => [...m, { role: "bot", text: "Use the booking form above to get started!" }]);
-    }
-  }
-
+export default function Home() {
   return (
     <>
-      <motion.button
-        onClick={() => setOpen(o => !o)}
-        whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
-        style={{ position: "fixed", bottom: 24, right: 24, width: 52, height: 52, borderRadius: "50%",
-          background: "linear-gradient(135deg,#2563eb,#1d4ed8)", border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 20px rgba(37,99,235,0.5)", zIndex: 1000, fontSize: 20 }}
-      >
-        {open ? "✕" : "💬"}
-      </motion.button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.97 }}
-            transition={{ duration: 0.2 }}
-            style={{ position: "fixed", bottom: 88, right: 24, width: 320, height: 420,
-              background: "rgba(8,15,26,0.97)", border: "1px solid rgba(37,99,235,0.3)",
-              borderRadius: 16, display: "flex", flexDirection: "column", zIndex: 1000,
-              overflow: "hidden", backdropFilter: "blur(20px)" }}
-          >
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(37,99,235,0.2)", fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>
-              RideFlow Assistant
-            </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-              {msgs.map((m, i) => (
-                <div key={i} style={{
-                  alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-                  background: m.role === "user" ? "rgba(37,99,235,0.25)" : "rgba(255,255,255,0.06)",
-                  padding: "8px 12px", borderRadius: 10, fontSize: 12, color: "rgba(241,245,249,0.9)", maxWidth: "85%",
-                }}>{m.text}</div>
-              ))}
-            </div>
-            <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(37,99,235,0.15)", display: "flex", gap: 8 }}>
-              <input value={input} onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && send()}
-                placeholder="Ask about rides or booking…"
-                style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(37,99,235,0.25)",
-                  borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "#f1f5f9", outline: "none" }} />
-              <button onClick={send}
-                style={{ background: "#2563eb", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 12, color: "#fff", cursor: "pointer" }}>→</button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
-// ── Currency / region detection ───────────────────────────────────────────────
-const REGION_CONFIG: Record<string, { currency: string; symbol: string; baseRate: number; unit: string; flag: string }> = {
-  IN: { currency: "INR", symbol: "₹", baseRate: 12, unit: "km", flag: "🇮🇳" },
-  GB: { currency: "GBP", symbol: "£", baseRate: 3.5, unit: "mile", flag: "🇬🇧" },
-  AE: { currency: "AED", symbol: "د.إ", baseRate: 4.5, unit: "km", flag: "🇦🇪" },
-  SG: { currency: "SGD", symbol: "S$", baseRate: 3.2, unit: "km", flag: "🇸🇬" },
-  US: { currency: "USD", symbol: "$", baseRate: 2.8, unit: "mile", flag: "🇺🇸" },
-  AU: { currency: "AUD", symbol: "A$", baseRate: 3.0, unit: "km", flag: "🇦🇺" },
-};
-const DEFAULT_REGION = REGION_CONFIG.IN;
-
-// ── Ride types ────────────────────────────────────────────────────────────────
-const RIDE_TYPES = [
-  { id: "economy", label: "Economy", icon: "🚗", desc: "Affordable everyday rides", multiplier: 1, seats: 4, eta: "3-5 min" },
-  { id: "comfort", label: "Comfort", icon: "🚙", desc: "Extra space & AC guaranteed", multiplier: 1.4, seats: 4, eta: "5-8 min" },
-  { id: "xl",      label: "XL",      icon: "🚐", desc: "Groups up to 7 passengers", multiplier: 1.8, seats: 7, eta: "6-10 min" },
-  { id: "bike",    label: "Bike",    icon: "🏍️", desc: "Beat traffic, single rider", multiplier: 0.6, seats: 1, eta: "2-4 min" },
-];
-
-const SERVICES = [
-  { icon: "✈️", label: "Airport Transfer", desc: "Fixed price, flight tracking" },
-  { icon: "🏙️", label: "City Rides",        desc: "Quick local trips, lowest fare" },
-  { icon: "🛣️", label: "Outstation",        desc: "One-way & round trips" },
-  { icon: "📅", label: "Scheduled Pickup",  desc: "Book up to 7 days ahead" },
-  { icon: "🏢", label: "Corporate",         desc: "Monthly billing, GST invoice" },
-  { icon: "👰", label: "Special Events",    desc: "Weddings, parties, nights out" },
-];
-
-
-
-function estimatePrice(distance: number, rideType: typeof RIDE_TYPES[0], region: typeof DEFAULT_REGION): string {
-  const base = 50 * (region.symbol === "₹" ? 1 : 0.08);
-  const per = region.baseRate;
-  const total = (base + distance * per) * rideType.multiplier;
-  return `${region.symbol}${Math.round(total)}–${region.symbol}${Math.round(total * 1.15)}`;
-}
-
-// ── Booking form ──────────────────────────────────────────────────────────────
-function BookingForm({ region }: { region: typeof DEFAULT_REGION }) {
-  const [pickup, setPickup]     = useState("");
-  const [drop, setDrop]         = useState("");
-  const [date, setDate]         = useState("");
-  const [time, setTime]         = useState("");
-  const [rideType, setRideType] = useState("economy");
-  const [distance]              = useState(12);
-  const [step, setStep]         = useState<"form" | "confirm" | "booked">("form");
-  const [loading, setLoading]   = useState(false);
-
-  const selected = RIDE_TYPES.find(r => r.id === rideType)!;
-  const price    = estimatePrice(distance, selected, region);
-
-  const handleBook = async () => {
-    if (!pickup || !drop) return;
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    setStep("confirm");
-  };
-
-  const handleConfirm = async () => {
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1500));
-    setLoading(false);
-    setStep("booked");
-  };
-
-  if (step === "booked") {
-    return (
-      <div style={{ textAlign: "center", padding: "32px 0" }}>
-        <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#f1f5f9", marginBottom: 8, fontFamily: "var(--font-display)" }}>Ride Confirmed!</div>
-        <div style={{ color: "rgba(148,163,184,0.85)", fontSize: 14, marginBottom: 24 }}>Your {selected.label} is on its way · ETA {selected.eta}</div>
-        <div style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 12, padding: "16px 20px", marginBottom: 20 }}>
-          <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 15 }}>Driver assigned · Tracking link sent to your phone</div>
-        </div>
-        <button onClick={() => setStep("form")} style={{ background: "transparent", border: "1px solid rgba(37,99,235,0.3)", color: "#3b82f6", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-          Book another ride
-        </button>
-      </div>
-    );
-  }
-
-  if (step === "confirm") {
-    return (
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(148,163,184,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>Confirm your ride</div>
-        {[
-          { label: "Pickup", value: pickup, icon: "📍" },
-          { label: "Drop", value: drop, icon: "🏁" },
-          { label: "Ride type", value: `${selected.icon} ${selected.label}`, icon: "" },
-          { label: "Est. fare", value: price, icon: "💰" },
-          { label: "ETA", value: selected.eta, icon: "⏱️" },
-        ].map(({ label, value }) => (
-          <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(37,99,235,0.1)" }}>
-            <span style={{ color: "rgba(148,163,184,0.7)", fontSize: 13 }}>{label}</span>
-            <span style={{ color: "#f1f5f9", fontSize: 13, fontWeight: 600 }}>{value}</span>
+      <nav className="nav" aria-label="Main">
+        <div className="wrap nav-in">
+          <Logo />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <a className="link hide-sm" href="#how">How it works</a>
+            <a className="link" href="#pricing">Pricing</a>
+            <a className="btn btn-primary" style={{ minHeight: 44, padding: '0 16px', fontSize: 14 }} href="#planner">Plan a route</a>
           </div>
-        ))}
-        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-          <button onClick={() => setStep("form")} style={{ flex: 1, background: "transparent", border: "1px solid rgba(100,116,139,0.3)", color: "rgba(148,163,184,0.8)", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-            Edit
-          </button>
-          <motion.button onClick={handleConfirm} disabled={loading}
-            whileTap={!loading ? { scale: 0.97 } : {}}
-            style={{ flex: 2, background: "#2563eb", color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
-            {loading ? "Confirming…" : "Confirm & Book →"}
-          </motion.button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {/* Pickup */}
-      <div style={{ position: "relative" }}>
-        <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#22c55e", pointerEvents: "none" }}>
-          <MapPin size={16} />
-        </div>
-        <input value={pickup} onChange={e => setPickup(e.target.value)} placeholder="Pickup location" style={{ width: "100%", background: "rgba(15,27,45,0.8)", border: "1px solid rgba(37,99,235,0.2)", borderRadius: 10, padding: "12px 12px 12px 38px", color: "#f1f5f9", fontSize: 14 }} />
-      </div>
-      {/* Drop */}
-      <div style={{ position: "relative" }}>
-        <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", pointerEvents: "none" }}>
-          <MapPin size={16} />
-        </div>
-        <input value={drop} onChange={e => setDrop(e.target.value)} placeholder="Where to?" style={{ width: "100%", background: "rgba(15,27,45,0.8)", border: "1px solid rgba(37,99,235,0.2)", borderRadius: 10, padding: "12px 12px 12px 38px", color: "#f1f5f9", fontSize: 14 }} />
-      </div>
-      {/* Date + Time */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ background: "rgba(15,27,45,0.8)", border: "1px solid rgba(37,99,235,0.2)", borderRadius: 10, padding: "12px", color: "#f1f5f9", fontSize: 13 }} />
-        <input type="time" value={time} onChange={e => setTime(e.target.value)} style={{ background: "rgba(15,27,45,0.8)", border: "1px solid rgba(37,99,235,0.2)", borderRadius: 10, padding: "12px", color: "#f1f5f9", fontSize: 13 }} />
-      </div>
-      {/* Ride type selector */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        {RIDE_TYPES.map(rt => (
-          <button key={rt.id} onClick={() => setRideType(rt.id)}
-            style={{ background: rideType === rt.id ? "rgba(37,99,235,0.15)" : "rgba(15,27,45,0.6)", border: `1px solid ${rideType === rt.id ? "rgba(37,99,235,0.5)" : "rgba(37,99,235,0.15)"}`, borderRadius: 10, padding: "10px 12px", cursor: "pointer", textAlign: "left", transition: "all 150ms" }}>
-            <div style={{ fontSize: 18, marginBottom: 2 }}>{rt.icon}</div>
-            <div style={{ color: rideType === rt.id ? "#3b82f6" : "#f1f5f9", fontWeight: 700, fontSize: 13 }}>{rt.label}</div>
-            <div style={{ color: "rgba(148,163,184,0.6)", fontSize: 11 }}>{rt.seats} seats · {rt.eta}</div>
-          </button>
-        ))}
-      </div>
-      {/* Price estimate */}
-      {pickup && drop && (
-        <div style={{ background: "rgba(37,99,235,0.08)", border: "1px solid rgba(37,99,235,0.2)", borderRadius: 10, padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: "rgba(148,163,184,0.8)", fontSize: 13 }}>Estimated fare</span>
-          <span style={{ color: "#3b82f6", fontWeight: 800, fontSize: 16 }}>{price}</span>
-        </div>
-      )}
-      <motion.button onClick={handleBook} disabled={!pickup || !drop || loading}
-        whileTap={pickup && drop ? { scale: 0.97 } : {}}
-        style={{ background: !pickup || !drop ? "rgba(37,99,235,0.3)" : "#2563eb", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 15, fontWeight: 700, cursor: !pickup || !drop ? "not-allowed" : "pointer", transition: "background 150ms, box-shadow 150ms", boxShadow: pickup && drop ? "0 4px 24px rgba(37,99,235,0.4)" : "none" }}>
-        {loading ? "Finding rides…" : "Find a Ride →"}
-      </motion.button>
-    </div>
-  );
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
-export default function Home() {
-  const [region, setRegion] = useState(DEFAULT_REGION);
-  const [detectedFlag, setDetectedFlag] = useState("🌍");
-
-  useEffect(() => {
-    // Detect country from timezone as proxy (no API key needed)
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz.startsWith("Asia/Kolkata") || tz.startsWith("Asia/Calcutta")) { setRegion(REGION_CONFIG.IN); setDetectedFlag("🇮🇳"); }
-    else if (tz.startsWith("Europe/London")) { setRegion(REGION_CONFIG.GB); setDetectedFlag("🇬🇧"); }
-    else if (tz.startsWith("Asia/Dubai")) { setRegion(REGION_CONFIG.AE); setDetectedFlag("🇦🇪"); }
-    else if (tz.startsWith("Asia/Singapore")) { setRegion(REGION_CONFIG.SG); setDetectedFlag("🇸🇬"); }
-    else if (tz.startsWith("America/")) { setRegion(REGION_CONFIG.US); setDetectedFlag("🇺🇸"); }
-    else if (tz.startsWith("Australia/")) { setRegion(REGION_CONFIG.AU); setDetectedFlag("🇦🇺"); }
-  }, []);
-
-  return (
-    <div style={{ minHeight: "100vh", background: "#080f1a", position: "relative" }}>
-      <AnimatedBg />
-
-      {/* Nav */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(8,15,26,0.95)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(37,99,235,0.1)", padding: "0 20px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 6, background: "linear-gradient(135deg, #1e3a5f, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="5" cy="19" r="2" fill="white" opacity="0.85"/>
-              <path d="M5 19c0-5 3-7 7-7s7-2 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              <path d="M15.5 2.5l4 2.5-4 2.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-            </svg>
-          </div>
-          <span style={{ fontWeight: 800, fontSize: 17, color: "#f1f5f9", letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>Ride<span style={{ color: "#2563eb" }}>Flow</span></span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 16 }} title="Location detected">{detectedFlag}</span>
-          <span style={{ fontSize: 12, color: "rgba(148,163,184,0.6)", background: "rgba(37,99,235,0.1)", padding: "3px 8px", borderRadius: 99, border: "1px solid rgba(37,99,235,0.2)" }}>{region.symbol} {region.currency}</span>
-          <a href="tel:+1800000000" style={{ display: "flex", alignItems: "center", gap: 5, background: "#2563eb", color: "#fff", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
-            <Phone size={12} /> Book Now
-          </a>
         </div>
       </nav>
 
-      {/* Dashboard stats strip */}
-      <RideDashboard />
-
-      {/* Hero */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 20px 40px", display: "grid", gridTemplateColumns: "1fr 420px", gap: 48, alignItems: "center" }}
-        className="fade-up">
-        {/* Left */}
-        <div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 99, padding: "4px 12px", fontSize: 11, color: "#22c55e", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 20 }}>
-            <span className="live-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
-            Drivers available now
-          </div>
-          <h1 style={{ fontSize: "clamp(32px,4.5vw,54px)", fontWeight: 900, color: "#f1f5f9", letterSpacing: "-0.04em", lineHeight: 1.1, margin: "0 0 16px", fontFamily: "var(--font-display)" }}>
-            Your ride,<br />
-            <span style={{ background: "linear-gradient(135deg,#2563eb,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>anywhere.</span>
+      <main className="wrap">
+        <header style={{ padding: '22px 0 0' }} className="fade-up hero">
+          <h1 style={{ fontSize: 'clamp(26px,4.2vw,40px)', letterSpacing: '-0.04em', lineHeight: 1.08, margin: 0, fontWeight: 800 }}>
+            Fewer km between <span style={{ color: 'var(--accent)' }}>every stop.</span>
           </h1>
-          <p style={{ color: "rgba(148,163,184,0.85)", fontSize: 17, lineHeight: 1.65, maxWidth: 480, margin: "0 0 32px" }}>
-            Fast, safe rides at fair prices. No surge surprises — just upfront fares in your local currency.
+          <p className="hero-sub" style={{ color: 'var(--text-2)', margin: '8px 0 0', maxWidth: 540, lineHeight: 1.6 }}>
+            Route planner for independent drivers and couriers. Paste your stops, get the order.
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-            {[
-              { icon: <Zap size={15} />, text: "Instant booking" },
-              { icon: <Shield size={15} />, text: "Verified drivers" },
-              { icon: <Star size={15} />, text: "4.9★ rated" },
-            ].map(({ icon, text }) => (
-              <div key={text} style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(148,163,184,0.75)", fontSize: 13 }}>
-                <span style={{ color: "#2563eb" }}>{icon}</span>
-                {text}
-              </div>
+        </header>
+
+        <section id="planner" aria-label="Route planner"><Planner /></section>
+
+        <section id="how" className="sec strip" aria-label="How it works">
+          <ol className="steps">
+            {STEPS.map(([t, d], i) => (
+              <li key={t} title={d}><b>0{i + 1}</b> <strong>{t}</strong> <span>{d}</span></li>
             ))}
+          </ol>
+        </section>
+
+        <section id="pricing" className="sec strip" aria-label="Pricing">
+          <div className="prow">
+            <div className="pcell"><strong>Free</strong> <span className="amt">$0</span> <span>12 stops, nearest-first, distance saved, AI assistant</span></div>
+            <div className="pcell pro"><strong>Pro</strong> <span>Coming soon: more stops, saved routes, time windows.</span> <PromoBox /></div>
           </div>
-        </div>
+        </section>
 
-        {/* Booking card */}
-        <div style={{ background: "rgba(15,27,45,0.9)", border: "1px solid rgba(37,99,235,0.2)", borderRadius: 20, padding: "28px 24px", backdropFilter: "blur(16px)", boxShadow: "0 24px 64px rgba(0,0,0,0.5)" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9", marginBottom: 16, fontFamily: "var(--font-display)" }}>Where are you going?</div>
-          <BookingForm region={region} />
-        </div>
-      </section>
-
-      {/* Responsive fix: stack on mobile */}
-      <style>{`
-        @media (max-width: 768px) {
-          section[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-
-      {/* Ride types */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 20px" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 8, fontFamily: "var(--font-display)" }}>Choose your ride</h2>
-        <p style={{ color: "rgba(148,163,184,0.7)", fontSize: 14, marginBottom: 28 }}>All rides include: upfront pricing · verified driver · real-time tracking</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 14 }}>
-          {RIDE_TYPES.map(rt => (
-            <div key={rt.id} className="ride-card" style={{ background: "rgba(15,27,45,0.7)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 16, padding: "20px" }}>
-              <span style={{ fontSize: 32, display: "block", marginBottom: 12 }}>{rt.icon}</span>
-              <div style={{ fontWeight: 800, fontSize: 16, color: "#f1f5f9", marginBottom: 4, fontFamily: "var(--font-display)" }}>{rt.label}</div>
-              <div style={{ color: "rgba(148,163,184,0.7)", fontSize: 13, marginBottom: 12 }}>{rt.desc}</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 99, background: "rgba(37,99,235,0.1)", color: "#60a5fa", fontWeight: 600 }}>
-                  <Users size={10} style={{ display: "inline", marginRight: 3 }} />{rt.seats} seats
-                </span>
-                <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 99, background: "rgba(34,197,94,0.1)", color: "#22c55e", fontWeight: 600 }}>
-                  <Clock size={10} style={{ display: "inline", marginRight: 3 }} />{rt.eta}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Services */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px 60px" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 28, fontFamily: "var(--font-display)" }}>Every journey, covered</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 12 }}>
-          {SERVICES.map(s => (
-            <div key={s.label} className="ride-card" style={{ background: "rgba(15,27,45,0.7)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 14, padding: "18px" }}>
-              <span style={{ fontSize: 28, display: "block", marginBottom: 10 }}>{s.icon}</span>
-              <div style={{ fontWeight: 700, fontSize: 14, color: "#f1f5f9", marginBottom: 4 }}>{s.label}</div>
-              <div style={{ color: "rgba(148,163,184,0.6)", fontSize: 12 }}>{s.desc}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Why RideFlow */}
-      <section style={{ background: "rgba(37,99,235,0.04)", borderTop: "1px solid rgba(37,99,235,0.1)", borderBottom: "1px solid rgba(37,99,235,0.1)", padding: "40px 20px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "rgba(148,163,184,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center", marginBottom: 24, fontFamily: "var(--font-display)" }}>Why RideFlow</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16, textAlign: "center" }}>
-            {[
-              { icon: "💰", label: "Upfront pricing", desc: "Know the fare before you book. No surge surprises." },
-              { icon: "🛡️", label: "Verified drivers", desc: "Every driver is background-checked and rated." },
-              { icon: "🌍", label: "Multi-currency", desc: "Pay in your local currency, auto-detected." },
-              { icon: "📅", label: "Schedule ahead", desc: "Book up to 7 days in advance. Never miss a ride." },
-            ].map(({ icon, label, desc }) => (
-              <div key={label} style={{ background: "rgba(15,27,45,0.6)", border: "1px solid rgba(37,99,235,0.12)", borderRadius: 14, padding: "20px 18px" }}>
-                <div style={{ fontSize: 28, marginBottom: 10 }}>{icon}</div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#f1f5f9", marginBottom: 6 }}>{label}</div>
-                <div style={{ color: "rgba(148,163,184,0.6)", fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
-              </div>
-            ))}
+        <footer className="foot">
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+            <span>&copy; 2026 RideFlow</span>
+            <span><Link href="/privacy">Privacy</Link></span>
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px 60px" }}>
-        <div style={{ background: "linear-gradient(135deg,rgba(37,99,235,0.15),rgba(59,130,246,0.08))", border: "1px solid rgba(37,99,235,0.25)", borderRadius: 20, padding: "48px 32px", textAlign: "center" }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>🚖</div>
-          <h2 style={{ fontSize: 28, fontWeight: 900, color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 10, fontFamily: "var(--font-display)" }}>Ready to ride?</h2>
-          <p style={{ color: "rgba(148,163,184,0.75)", fontSize: 15, marginBottom: 28 }}>Book your first ride in under 60 seconds. No app, no signup required.</p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="#booking" style={{ textDecoration: "none" }}>
-              <MagneticButton style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#2563eb", color: "#fff", padding: "13px 28px", borderRadius: 12, fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 24px rgba(37,99,235,0.4)" }}>
-                Book a Ride <ChevronRight size={16} />
-              </MagneticButton>
-            </a>
-            <a href="tel:+1800000000" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "#f1f5f9", border: "1px solid rgba(37,99,235,0.35)", padding: "13px 28px", borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
-              <Phone size={15} /> Call to Book
-            </a>
-          </div>
-          <p className="text-xs opacity-60 mt-2">Have a promo code? <a href="#promo" className="underline">Apply here</a></p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ borderTop: "1px solid rgba(37,99,235,0.1)", padding: "28px 20px", background: "rgba(15,27,45,0.4)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span>🚖</span>
-            <span style={{ fontWeight: 800, color: "#f1f5f9", fontFamily: "var(--font-display)" }}>RideFlow</span>
-          </div>
-          <div style={{ display: "flex", gap: 20, color: "rgba(148,163,184,0.5)", fontSize: 12 }}>
-            {["About", "Safety", "Drivers", "Privacy", "Terms"].map(l => (
-              <a key={l} href={`/${l.toLowerCase()}`} style={{ color: "inherit", textDecoration: "none" }}>{l}</a>
-            ))}
-          </div>
-          <div style={{ color: "rgba(100,116,139,0.6)", fontSize: 12 }}>&copy; 2026 RideFlow</div>
-        </div>
-      </footer>
-
-      {/* How it works - float CTA on mobile */}
-      <div style={{ display: "none" }} id="booking" />
-      <FloatingChat />
-    </div>
-  );
+        </footer>
+      </main>
+    </>
+  )
 }

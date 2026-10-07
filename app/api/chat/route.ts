@@ -1,22 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Groq from 'groq-sdk'
-import { AI_LIMITER } from '@/lib/rateLimit'
 
-let _g: Groq | null = null
-function g() { if (!_g) _g = new Groq({ apiKey: process.env.GROQ_API_KEY! }); return _g }
+// 60 req/hr/IP (in-memory, per instance)
+const hits = new Map<string, { n: number; reset: number }>()
+function limited(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown'
+  const now = Date.now(), e = hits.get(ip)
+  if (!e || now > e.reset) { hits.set(ip, { n: 1, reset: now + 3_600_000 }); return false }
+  return ++e.n > 60
+}
+
+const SYSTEM = `You are the RideFlow assistant. RideFlow is a free multi-stop route planner for independent drivers and couriers: the user pastes stops, it orders them nearest-neighbour to cut drive distance. Answer only about route planning, delivery stops, drive-time and fuel saving, and using RideFlow. If asked anything else, reply exactly: "I'm trained for RideFlow. For that, try Google or ChatGPT!" Be concise (under 80 words). Never claim features RideFlow lacks (no live traffic, no booking, no drivers marketplace).`
+
+type Msg = { role: string; content: string }
+const FALLBACK = 'The assistant is busy right now. Paste your stops into the planner and press Optimize route, or try again in a minute.'
+
+async function ask(url: string, key: string, model: string, messages: Msg[]) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify({ model, messages, max_tokens: 300 }),
+    signal: AbortSignal.timeout(8000),
+  })
+  if (!r.ok) throw new Error(String(r.status))
+  const j = await r.json()
+  const t = j.choices?.[0]?.message?.content
+  if (!t) throw new Error('empty')
+  return String(t)
+}
 
 export async function POST(req: NextRequest) {
-  const limited = AI_LIMITER.check(req); if (limited) return limited
-
+  if (limited(req)) return NextResponse.json({ text: 'Rate limit reached (60 messages/hour). Please try again later.' })
+  let msgs: Msg[] = []
   try {
-    const { messages, system } = await req.json()
-    const res = await g().chat.completions.create({
-      model: 'qwen/qwen3.8-27b',
-      messages: [{ role: 'system', content: system ?? 'You are RideFlow AI — a ride booking assistant. Help users book rides, estimate fares, understand ride types, and answer questions about the service. Be concise and helpful.' }, ...messages],
-      max_tokens: 400,
-    })
-    return NextResponse.json({ text: res.choices[0]?.message?.content ?? 'Happy to help with your ride!' })
-  } catch {
-    return NextResponse.json({ text: 'Use the booking form above to get started!' }, { status: 200 })
+    const b = await req.json()
+    msgs = (Array.isArray(b.messages) ? b.messages : []).slice(-8).map((m: Msg) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content ?? '').slice(0, 1000) }))
+  } catch {}
+  if (!msgs.length) return NextResponse.json({ text: FALLBACK })
+  const messages = [{ role: 'system', content: SYSTEM }, ...msgs]
+  // free chain: Groq -> Gemini -> Cerebras
+  const chain: [string | undefined, string, string][] = [
+    [process.env.GROQ_API_KEY, 'https://api.groq.com/openai/v1/chat/completions', 'llama-3.3-70b-versatile'],
+    [process.env.GEMINI_API_KEY, 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'gemini-2.0-flash'],
+    [process.env.CEREBRAS_API_KEY, 'https://api.cerebras.ai/v1/chat/completions', 'llama3.1-8b'],
+  ]
+  for (const [key, url, model] of chain) {
+    if (!key) continue
+    try { return NextResponse.json({ text: await ask(url, key, model, messages) }) } catch {}
   }
+  return NextResponse.json({ text: FALLBACK })
 }

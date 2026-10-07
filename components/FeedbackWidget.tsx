@@ -91,7 +91,7 @@ export default function FeedbackWidget({
         style={{
           position: 'fixed', bottom: offset, ...(position === 'left' ? { left: offset } : { right: offset }), zIndex: 50,
           display: 'flex', alignItems: 'center', gap: 8,
-          padding: '10px 18px', borderRadius: 999,
+          padding: '0 18px', minHeight: 44, minWidth: 44, borderRadius: 999,
           background: gradient, color: '#000',
           fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
           boxShadow: `0 4px 20px ${accentColor}55, 0 2px 8px rgba(0,0,0,0.4)`,
